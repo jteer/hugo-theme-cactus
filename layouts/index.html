@@ -34,8 +34,8 @@
 
   <section id="writing">
     <!-- TODO: use built in mainSections parameter https://gohugo.io/functions/where/#mainsections -->
-    <span class="h1"><a href="{{ .Site.Params.mainSection | absURL }}">Writings</a></span>
-    {{ if (and (and (isset .Site.Params "tagsoverview") (eq .Site.Params.tagsOverview true)) (gt (len .Site.Taxonomies.tags) 0)) }}
+    <span class="h1"><a href="{{ .Site.Params.mainSection | absURL }}">Posts</a></span>
+    <!-- {{ if (and (and (isset .Site.Params "tagsoverview") (eq .Site.Params.tagsOverview true)) (gt (len .Site.Taxonomies.tags) 0)) }}
     <span class="h2">Topics</span>
     <span class="widget tagcloud">
       {{ $AllRegularPagesCount := len .Site.RegularPages }}
@@ -46,12 +46,14 @@
       {{ end }}
     </span>
     <span class="h2">Most recent</span>
-    {{ end }}
+    {{ end }} -->
 
     {{ $showAllPostsOnHomePage := false }}
     {{ if (isset .Site.Params "showallpostsonhomepage") }}
       {{ $showAllPostsOnHomePage = .Site.Params.ShowAllPostsOnHomePage }}
     {{ end }}
+
+
     {{ $dataFormat := .Site.Params.dateFormat | default "2006-01-02" }}
     {{ if $showAllPostsOnHomePage }}
     <ul class="post-list">
@@ -62,12 +64,20 @@
         </li>
       {{ end }}
     </ul>
-
     {{ partial "pagination.html" . }}
-
     {{ else }}
     <ul class="post-list">
-      {{ .Scratch.Set "count" 5 }}
+      {{ $pages := where .Site.RegularPages "Section" "in" .Site.Params.mainSections }}
+      {{ $paginator := .Paginate (where $pages "Params.hidden" "ne" true) }}
+      {{ range $paginator.Pages }}
+      <li class="post-item">
+        <div class="meta"><time datetime="{{ time .Date }}" itemprop="datePublished">{{ .Date.Format $dataFormat }}</time></div>
+        <span><a href="{{ .Permalink }}">{{ if .Title }} {{- .Title -}} {{ else }} {{- print "Untitled" -}}{{ end }}</a></span>
+      </li>
+      {{ end }}
+	    {{ partial "pagination.html" . }}
+
+      <!-- {{ .Scratch.Set "count" 5 }}
       {{ if isset .Site.Params "postsonhomepage" }}
         {{ .Scratch.Set "count" .Site.Params.postsOnHomePage }}
       {{ end }}
@@ -76,7 +86,7 @@
           <div class="meta"><time datetime="{{ time .Date }}" itemprop="datePublished">{{ .Date.Format $dataFormat }}</time></div>
           <span><a href="{{ .Permalink }}">{{ if .Title }} {{- .Title -}} {{ else }} {{- print "Untitled" -}}{{ end }}</a></span>
         </li>
-      {{ end }}
+      {{ end }} -->
     </ul>
     {{ end }}
   </section>
